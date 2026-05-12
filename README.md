@@ -107,33 +107,33 @@ this threat model. The numbers below describe `tagfence`'s own throughput.
 Run `npm run bench` to reproduce them on your machine.
 
 Measured on Node 24.13.0 (Linux x64), 7 × 400 ms samples after 200 ms warmup;
-variance under ±6 % across all scenarios.
+variance under ±7 % across all scenarios.
 
 | Scenario                                      | Per call | Throughput |
 | --------------------------------------------- | -------- | ---------- |
 | **No match**                                  |          |            |
-| 10 KB ASCII text                              | 50 µs    | 191 MB/s   |
-| 100 KB ASCII text                             | 493 µs   | 193 MB/s   |
-| 18 KB mixed-script text                       | 812 µs   | 21 MB/s    |
+| 10 KB ASCII text                              | 36 µs    | 263 MB/s   |
+| 100 KB ASCII text                             | 364 µs   | 262 MB/s   |
+| 18 KB mixed-script text                       | 871 µs   | 20 MB/s    |
 | **Match-heavy** (one forged prefix per ~50 B) |          |            |
-| 10 KB plain ASCII                             | 49 µs    | 196 MB/s   |
-| 11 KB homoglyph                               | 173 µs   | 61 MB/s    |
-| 13 KB zero-width                              | 234 µs   | 55 MB/s    |
-| 15 KB fullwidth                               | 314 µs   | 46 MB/s    |
-| 12 KB combining-mark                          | 462 µs   | 25 MB/s    |
+| 10 KB plain ASCII                             | 43 µs    | 223 MB/s   |
+| 11 KB homoglyph                               | 149 µs   | 71 MB/s    |
+| 13 KB zero-width                              | 206 µs   | 62 MB/s    |
+| 15 KB fullwidth                               | 316 µs   | 46 MB/s    |
+| 12 KB combining-mark                          | 424 µs   | 27 MB/s    |
 
-Throughput is linear in input size in every scenario. The ~9× ASCII-to-Unicode
+Throughput is linear in input size in every scenario. The ~13× ASCII-to-Unicode
 gap on no-match input is the cost of NFKC on non-ASCII code points, so
-ASCII-dominated prompts get most of the benefit. Match-heavy ASCII throughput
-matches the no-match number, so detection and replacement are essentially
-free once the fast path classifies a code point as a candidate; per-form
-differences track normalization cost — combining marks are the most expensive
-because every base character is followed by a mark that must be folded and
-filtered.
+ASCII-dominated prompts get most of the benefit. Match-heavy ASCII stays
+within ~15 % of the no-match throughput, so detection and replacement add
+little overhead once the fast path classifies a code point as a candidate;
+per-form differences track normalization cost — combining marks are the most
+expensive because every base character is followed by a mark that must be
+folded and filtered.
 
-Sanitizing a 10 KB prompt takes tens of microseconds when ASCII-dominated and
-a few hundred microseconds when heavily Unicode — negligible relative to the
-LLM call that follows.
+Sanitizing a 10 KB prompt takes a few tens of microseconds when
+ASCII-dominated and under a millisecond when heavily Unicode — negligible
+relative to the LLM call that follows.
 
 ## API
 

@@ -87,6 +87,20 @@ describe("sanitize", () => {
     );
   });
 
+  it("matches prefixes after malformed surrogate code units", () => {
+    assert.equal(
+      sanitize("\uD800engine:inbox", { prefix: "engine:" }),
+      `\uD800${BLOCKED_INJECTION_MARKER}inbox`,
+    );
+  });
+
+  it("keeps valid surrogate pairs on the Unicode matching path", () => {
+    assert.equal(
+      sanitize("hello <\uD835\uDC52ngine:inbox>", { prefix: "engine:" }),
+      `hello <${BLOCKED_INJECTION_MARKER}inbox>`,
+    );
+  });
+
   it("preserves the low-level tagPrefix API", () => {
     assert.equal(
       sanitizeReservedTagPrefixText("hello <sipduk:context>", {

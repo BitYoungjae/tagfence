@@ -69,13 +69,18 @@ export function sanitizeReservedTagPrefixText(
   const tagPrefix = validateReservedTagPrefix(options.tagPrefix);
   const replacement = normalizeReplacement(options.replacement);
   const firstTarget = tagPrefix[0]!;
+  const firstTargetCode = firstTarget.charCodeAt(0);
   let output = "";
   let cursor = 0;
   let matched = false;
 
   for (let index = 0; index < text.length; ) {
-    if (!couldStartMatch(text, index, firstTarget)) {
-      index = nextCodePointIndex(text, index);
+    const code = text.charCodeAt(index);
+    if (!couldStartMatch(text, index, firstTarget, firstTargetCode, code)) {
+      index =
+        code <= 0x7f
+          ? index + 1
+          : nextCodePointIndexFromCode(text, index, code);
       continue;
     }
 
@@ -100,16 +105,15 @@ function couldStartMatch(
   text: string,
   index: number,
   firstTarget: string,
+  firstTargetCode: number,
+  code: number,
 ): boolean {
-  const codePoint = text.codePointAt(index);
-  if (codePoint === undefined) return false;
-  if (codePoint <= 0x7f) {
-    const charCode =
-      codePoint >= 0x41 && codePoint <= 0x5a ? codePoint + 0x20 : codePoint;
-    return charCode === firstTarget.charCodeAt(0);
+  if (code <= 0x7f) {
+    const charCode = code >= 0x41 && code <= 0x5a ? code + 0x20 : code;
+    return charCode === firstTargetCode;
   }
   return normalizeCodePoint(
-    text.slice(index, nextCodePointIndex(text, index)),
+    text.slice(index, nextCodePointIndexFromCode(text, index, code)),
   ).includes(firstTarget);
 }
 
@@ -221,10 +225,19 @@ function normalizeCodePoint(raw: string): string {
 }
 
 function nextCodePointIndex(text: string, index: number): number {
-  const code = text.charCodeAt(index);
-  return code >= 0xd800 && code <= 0xdbff && index + 1 < text.length
-    ? index + 2
-    : index + 1;
+  return nextCodePointIndexFromCode(text, index, text.charCodeAt(index));
+}
+
+function nextCodePointIndexFromCode(
+  text: string,
+  index: number,
+  code: number,
+): number {
+  if (code >= 0xd800 && code <= 0xdbff) {
+    const nextCode = text.charCodeAt(index + 1);
+    if (nextCode >= 0xdc00 && nextCode <= 0xdfff) return index + 2;
+  }
+  return index + 1;
 }
 
 function mapConfusable(char: string): string {
