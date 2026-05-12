@@ -1,6 +1,6 @@
 {
   "name": "tagfence",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Unicode-aware reserved-tag sanitizer for LLM applications.",
   "type": "module",
   "author": "BitYoungjae <bityoungjae@gmail.com>",
