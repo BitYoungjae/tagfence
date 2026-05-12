@@ -1,0 +1,76 @@
+{
+  "name": "tagfence",
+  "version": "0.1.0",
+  "description": "Unicode-aware reserved-tag sanitizer for LLM applications.",
+  "type": "module",
+  "author": "BitYoungjae <bityoungjae@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BitYoungjae/tagfence.git"
+  },
+  "bugs": {
+    "url": "https://github.com/BitYoungjae/tagfence/issues"
+  },
+  "homepage": "https://github.com/BitYoungjae/tagfence#readme",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "bench": "npm run build && node bench/sanitize.bench.mjs",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky",
+    "prepack": "npm test"
+  },
+  "keywords": [
+    "llm",
+    "prompt-injection",
+    "unicode",
+    "sanitize",
+    "homoglyph",
+    "security",
+    "tags"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.4",
+    "prettier": "^3.8.3",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.59.3"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,cjs,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": "prettier --write"
+  }
+}
